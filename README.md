@@ -42,7 +42,7 @@ Técnicas ilustradas en este ejemplo:
 
 5-Cree un sitio Web a través del administrador de IIS y copie el contenido de la carpeta Source dentro de la carpeta física designada
 
-6-Abra el archivo config.dk que se encuentra en la raíz y modifique el valor de la variable @BASE_PATH con el que corresponda a la ruta física
+6-Abra el archivo config.dk que se encuentra en la raíz con un editor (VS Code, NotePad++) y modifique el valor de la variable @BASE_PATH con el que corresponda a la ruta física
 
 7-Abra y pruebe la aplicación con su navegador
 
