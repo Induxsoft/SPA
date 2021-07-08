@@ -36,13 +36,15 @@ Técnicas ilustradas en este ejemplo:
   
   B- Devkron Language (Intérprete del lenguaje)
   
-3-Use la herramienta de configuración de IIS de Devkron incluida (aparecerá en el escritorio de Windows)
+3-Use el Asistente de creación de bases de datos de MaxiComercio para crear una base de datos
 
-4-Cree un sitio Web a través del administrador de IIS y copie el contenido de la carpeta Source dentro de la carpeta física designada
+4-Use la herramienta de configuración de IIS de Devkron incluida (aparecerá en el escritorio de Windows)
 
-5-Use el Asistente de creación de bases de datos de MaxiComercio para crear una base de datos
+5-Cree un sitio Web a través del administrador de IIS y copie el contenido de la carpeta Source dentro de la carpeta física designada
 
-6-Abra y pruebe la aplicación con su navegador
+6-Abra el archivo config.dk que se encuentra en la raíz y modifique el valor de la variable @BASE_PATH con el que corresponda a la ruta física
+
+7-Abra y pruebe la aplicación con su navegador
 
 ## Lenguaje Devkron [DKL]
 El lenguaje Devkron, o simplemente DKL [DevKron Language] es completamente traducible a XML; capaz de definir datos u otros dialectos; con interpretación imperativa y procedural para la generación dinámica de sí mismo y la realización de procesos.
