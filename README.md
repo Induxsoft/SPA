@@ -28,7 +28,7 @@ Técnicas ilustradas en este ejemplo:
 3-MySQL o MS SQL Server
 
 ### Instalación
-1-Descargue e instale el Induxsoft Windows Agent (IWA) [Descargar aquí] (https://induxsoft.net/?idpf=e7478a10d09147fcb0203bae001c8290)
+1-Descargue e instale el Induxsoft Windows Agent (IWA) [Descargar aquí](https://induxsoft.net/?idpf=e7478a10d09147fcb0203bae001c8290)
 
 2-Una vez instalado el IWA, úselo para descargar e instalar los siguientes productos:
 
