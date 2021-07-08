@@ -4,11 +4,11 @@ module "config.dk"
 {
     @PAGE_TITLE="Single Page Application"
 
-    @BASE_PATH="C:/apps.devkron/induxsoft/test/admin"
+    @BASE_PATH="C:/ubicacion_fisica_del_sitio_web" //DEBE MODIFICAR ESTE VALOR*************
     @MODULES_PATH=path.concat(@BASE_PATH,"modules")
     @LIBRARIES_PATH=path.concat(@BASE_PATH,"lib")
 
-    @BASE_URL="/induxsoft/test/admin/"
+    @BASE_URL="/"    //URL de base (Generalmente no deberá modificarla)
 
     @MODULES_FOLDER="modules"
     @INDEX_PAGE="index.dkl"
