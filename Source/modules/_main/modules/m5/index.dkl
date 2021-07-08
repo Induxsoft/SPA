@@ -1,0 +1,22 @@
+﻿#include "dkli.dkh"
+#!
+module "index.dkl"
+{
+    #include "functions.dkh"
+    #include "serialize.dkh"
+    #include "dbr.dkh"
+    #include "website.dkl"
+
+    content_module::
+    {
+
+
+    }
+
+    do render_page()
+
+    exception
+    {
+        include setModulePath(SET_ERROR_MESSAGE(last_error()))
+    }
+}

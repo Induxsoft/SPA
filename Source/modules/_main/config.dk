@@ -1,0 +1,11 @@
+#include "dkli.dkh"
+#!
+module "config.main.module"
+{
+    @main_submodules_prefix="_main/modules"
+    
+    include lib_path("auth.dk")
+    do SPA_RECONNECT()
+
+    
+}

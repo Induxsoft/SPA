@@ -1,0 +1,7 @@
+﻿#include "dkli.dkh"
+#$
+div
+{
+    h1{$"Módulo de prueba 4"}
+    $"#<render('content')>"
+}

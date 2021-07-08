@@ -1,0 +1,35 @@
+﻿#include "dkli.dkh"
+#!
+module "index.dkl"
+{
+    #include "functions.dkh"
+	#include "serialize.dkh"
+    #include "dbr.dkh"
+	#include "website.dkl"
+    
+
+    include "sidebar.views.dk"
+
+    create_sidebar::
+    {
+        ref bargroups=modules_groups(path.concat(@MODULES_PATH,@main_submodules_prefix),@main_submodules_prefix)
+        ref l=list.create_from_fields(bargroups)
+
+        for i=0;i<list.count(l)
+        {
+            do side_bar_group(list.str(l,i),field.obj(bargroups,list.str(l,i)))
+        }
+
+        do launch_first(bargroups)
+
+    }
+
+    content_module:: { }
+
+    do render_page()
+
+    exception
+    {
+        include setModulePath(SET_ERROR_MESSAGE(last_error()))
+    }
+}

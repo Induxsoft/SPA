@@ -1,0 +1,318 @@
+﻿#include "dkli.dkh"
+#!
+module "lib.dk"
+{
+    #include "cookies.dkl"
+
+    @MODULE_FIRST_LOAD=@false
+    
+
+    save_spa_cookie::
+    {
+        new data {}
+        data<@KEY_CONNECTION_QNAME>:field.dstr(@SPA_CONTEXT,@KEY_CONNECTION_QNAME,"")
+        data<@KEY_SESSION_ID>:field.dstr(@SPA_CONTEXT,@KEY_SESSION_ID,"")
+
+        _cookie=url_encode(to.json(data))
+
+        do cookie.setw(@COOKIE_NAME,_cookie+";Path="+@BASE_URL+";Max-Age=31104000")
+    }
+
+    load_spa_cookie::
+    {
+        _cookie=url_dcode(cookie.get(@COOKIE_NAME))
+
+        if trim(_cookie)==""
+        {
+            return
+        }
+
+        ref data=from.json(_cookie)
+
+        if field.dstr(@SPA_CONTEXT,@KEY_CONNECTION_QNAME,"")=="" && not(field.exist(@SPA_CONTEXT,@KEY_CONNECTION_QNAME)) && field.dstr(data,@KEY_CONNECTION_QNAME,"")!=""
+        {
+            @SPA_CONTEXT<@KEY_CONNECTION_QNAME>:field.dstr(data,@KEY_CONNECTION_QNAME,"")
+        }
+
+        if field.dstr(@SPA_CONTEXT,@KEY_SESSION_ID,"")=="" && not(field.exist(@SPA_CONTEXT,@KEY_SESSION_ID)) && field.dstr(data,@KEY_SESSION_ID,"")!=""
+        {
+            @SPA_CONTEXT<@KEY_SESSION_ID>:field.dstr(data,@KEY_SESSION_ID,"")
+        }
+
+        exception{}
+    }
+
+    on_initRequest::
+    {  
+        _context=field.dstr(@http_context,@HTTP_REQUEST_PATH_SPA_CONTEXT,"")
+
+        if _context!=""
+        {
+            ref @SPA_CONTEXT=from.json(_context)
+        }
+
+        do load_spa_cookie()
+        
+        if field.dstr(@http_context,@HTTP_REQUEST_PATH_CONNECTION_QNAME,"")!="" 
+        {
+            @SPA_CONTEXT<@KEY_CONNECTION_QNAME>: field.str(@http_context,@HTTP_REQUEST_PATH_CONNECTION_QNAME)
+        }
+        if field.dstr(@http_context,@HTTP_REQUEST_PATH_SESSION_ID,"")!=""
+        {
+            if tolower(field.str(@http_context,@HTTP_REQUEST_PATH_SESSION_ID))==tolower(@KEYWORD_LOGOUT)
+            {
+                @SPA_CONTEXT<@KEY_SESSION_ID>: ""
+            }
+            else
+            {
+                @SPA_CONTEXT<@KEY_SESSION_ID>: field.str(@http_context,@HTTP_REQUEST_PATH_SESSION_ID)
+            }
+            
+            do save_spa_cookie()
+        }
+
+        
+    }
+
+    setModulePath::name
+    {
+        path=path.concat(path.concat(@MODULES_PATH,name),@INDEX_PAGE)
+        @http_context<"request/headers/PATH_TRANSLATED">:path
+
+        return path
+    }
+
+    content::
+    {
+        do module_register(file.name(dir.name(field.str(@http_context,"request/headers/PATH_TRANSLATED"))))
+
+        do module_header(@module_id)
+        do content_module()
+        do module_footer(@module_id)
+    }
+    
+    load_global_script::module_id
+    {
+        if not(@MODULE_FIRST_LOAD) && @JS_DELIVER_ONLY1TIME
+        {
+            return ""
+        }
+
+        if file.exists(path.concat(path.concat(@MODULES_PATH,module_id),@MODULE_SCRIPT))
+        {
+            return file.rtext(path.concat(path.concat(@MODULES_PATH,module_id),@MODULE_SCRIPT))
+        }
+    }
+
+    load_global_css::module_id
+    {
+        if not(@MODULE_FIRST_LOAD) && @CSS_DELIVER_ONLY1TIME
+        {
+            return ""
+        }
+
+        if file.exists(path.concat(path.concat(@MODULES_PATH,module_id),@MODULE_CSS))
+        {
+            return file.rtext(path.concat(path.concat(@MODULES_PATH,module_id),@MODULE_CSS))
+        }
+    }
+
+    module_header::module_id
+    {
+        if @MODULE_FIRST_LOAD || not(@CSS_DELIVER_ONLY1TIME)
+        {
+            ##
+            style
+            {$'
+                #<load_global_css(module_id)>
+            '}
+            ##    
+        }
+    }
+
+    module_footer::module_id
+    {
+        if field.exist(@SPA_CONTEXT,"current_request")
+        {
+            @SPA_CONTEXT<"current_request/data*">:@null
+        }
+        
+        if @MODULE_FIRST_LOAD || not(@JS_DELIVER_ONLY1TIME)
+        {
+            ##
+            script(type="text/javascript")
+            {$'
+                #<load_global_script(module_id)>
+                spa_context=#<to.json(@SPA_CONTEXT)>;
+            '}
+            ##    
+        }
+        else
+        {
+            ##
+            script(type="text/javascript")
+            {$'
+                spa_context=#<to.json(@SPA_CONTEXT)>;
+            '}
+            ##
+        }
+    }
+
+    module_register::module_id
+    {
+        @module_id=module_id
+
+        if file.exists(path.concat(path.concat(@MODULES_PATH,module_id),@MODULE_META))
+        {
+            ref @MODULE_INFO=from.json(file.rtext(path.concat(path.concat(@MODULES_PATH,module_id),@MODULE_META)))
+
+            if trim(field.dstr(@MODULE_INFO,"id",""))!=""
+            {
+                @module_id=field.dstr(@MODULE_INFO,"id","")
+                module_id=@module_id
+            }
+        }
+        else
+        {
+            @MODULE_INFO<"id">:module_id
+        }
+
+        if not(is_module_loaded(module_id))
+        {
+            do list.add(field.obj(@SPA_CONTEXT,"MODULES"),module_id)
+            @MODULE_FIRST_LOAD=@true
+        }
+    }
+
+    
+    is_module_loaded::module_id
+    {
+        if not(field.exist(@SPA_CONTEXT,"MODULES"))
+        {
+            @SPA_CONTEXT<"MODULES*">:list.create()
+        }
+        else
+        {
+            if isnull(field.obj(@SPA_CONTEXT,"MODULES"))
+            {
+                @SPA_CONTEXT<"MODULES*">:list.create()
+            }
+        }
+
+        for i=0;i<list.count(field.obj(@SPA_CONTEXT,"MODULES"))
+        {
+            if tolower(list.str(field.obj(@SPA_CONTEXT,"MODULES"),i))==tolower(module_id)
+            {
+                return @true
+            }
+        }
+
+        return @false
+    }
+
+    parse_qname::qname
+    {
+        ref secs=split(qname,"/")
+        qn=list.str(secs,list.count(secs)-1)
+
+        ref parts=split(qn,"@")
+        ap=list.str(parts,list.count(parts)-1)
+        cn=list.str(parts,0)
+
+        new info
+        {
+            @"str": qn
+            @"app": ap
+            @"cnn": cn
+        }
+
+        return info
+
+        exception { return @null }
+
+    }
+
+    lib_path::name
+    {
+        p=@LIBRARIES_PATH
+
+        if isset("@SPA_CONTEXT")
+        {
+            if trim(field.dstr(@SPA_CONTEXT,"CONNECTION_QNAME",""))!=""
+            {
+                ref cni=parse_qname(trim(field.dstr(@SPA_CONTEXT,"CONNECTION_QNAME","")))
+
+                if not(isnull(cni))
+                {
+                    if file.exists(path.concat(path.concat(p,field.str(cni,"str")),name))
+                    {
+                        p=path.concat(p,field.str(cni,"str"))
+                    }
+                    else
+                    {
+                        if file.exists(path.concat(path.concat(p,"@"+field.str(cni,"app")),name))
+                        {
+                            p=path.concat(p,"@"+field.str(cni,"app"))
+                        }
+                    }
+                }
+            }
+        }
+
+        return path.concat(p,name)
+    }
+
+    SPA_LOGIN::&plogin
+    {
+        ref res=auth.login(plogin)
+
+        @SPA_CONTEXT<@KEY_SESSION_ID>:field.str(res,"ids")
+        @SPA_CONTEXT<@KEY_USER_NAME>:field.str(res,"name")
+        @SPA_CONTEXT<@KEY_USER_ID>:field.str(res,"uid")
+        @SPA_CONTEXT<@KEY_USER_VERIFIED_EMAIL>:field.str(res,"verified_email")
+        @SPA_CONTEXT<@KEY_USER_VERIFIED_MOBILE>:field.str(res,"verified_mobile")
+
+        do save_spa_cookie()
+
+        exception
+        {
+            @SPA_CONTEXT<@KEY_SESSION_ID>:""
+            do save_spa_cookie()
+            do rise_error(-99,"Usuario o contraseña inválidos.")
+        }
+
+    }
+
+    SPA_RECONNECT::
+    {
+
+        new p
+        {
+            @"ids":field.dstr(@SPA_CONTEXT,@KEY_SESSION_ID,"")
+            @"qname":field.dstr(@SPA_CONTEXT,@KEY_CONNECTION_QNAME,"")
+        }
+
+        ref res=auth.login(p)
+
+        @SPA_CONTEXT<@KEY_SESSION_ID>:field.str(res,"ids")
+        @SPA_CONTEXT<@KEY_USER_NAME>:field.str(res,"name")
+        @SPA_CONTEXT<@KEY_USER_ID>:field.str(res,"uid")
+        @SPA_CONTEXT<@KEY_USER_VERIFIED_EMAIL>:field.str(res,"verified_email")
+        @SPA_CONTEXT<@KEY_USER_VERIFIED_MOBILE>:field.str(res,"verified_mobile")
+
+        do save_spa_cookie()
+
+        exception
+        {
+            @SPA_CONTEXT<@KEY_SESSION_ID>:""
+            do save_spa_cookie()
+            do rise_error(-99,"La sesión no es válida o ha caducado. Vuelva a iniciar sesión (autenticarse).")
+        }
+
+        
+    }
+
+      
+    do on_initRequest()
+    
+}
