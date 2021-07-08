@@ -15,4 +15,7 @@ Técnicas ilustradas en este ejemplo:
 
 5-Un mecanismo sencillo para crear módulos escritos en DKL
 
-Este es un borrador, eventualmente se mejorará la documentación.
+## DEMO
+[Vea cómo se ve la aplicación aquí](https://apps.devkron.net/induxsoft/test/admin/)
+
+
