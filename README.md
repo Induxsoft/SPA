@@ -1,4 +1,5 @@
-# Plantilla de Aplicación de una sola página (Single Page Application [SPA]) escrita con Devkron [DKL]
+# Plantilla de Aplicación de una sola página 
+## (Single Page Application [SPA]) escrita con Devkron [DKL]
 
 *Esta aplicación tiene principalmente un propósito didáctico.*
 
