@@ -33,6 +33,7 @@ Técnicas ilustradas en este ejemplo:
 2-Una vez instalado el IWA, úselo para descargar e instalar los siguientes productos:
 
   A- MaxiComercio Herramientas de servidor (Soporte de bases de datos)
+  
   B- Devkron Language (Intérprete del lenguaje)
   
 3-Use la herramienta de configuración de IIS de Devkron incluida (aparecerá en el escritorio de Windows)
@@ -42,3 +43,8 @@ Técnicas ilustradas en este ejemplo:
 5-Use el Asistente de creación de bases de datos de MaxiComercio para crear una base de datos
 
 6-Abra y pruebe la aplicación con su navegador
+
+## Lenguaje Devkron [DKL]
+El lenguaje Devkron, o simplemente DKL [DevKron Language] es completamente traducible a XML; capaz de definir datos u otros dialectos; con interpretación imperativa y procedural para la generación dinámica de sí mismo y la realización de procesos.
+
+[Documentación del lenguaje DKL](https://devkron.org)
