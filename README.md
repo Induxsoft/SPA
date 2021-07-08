@@ -25,7 +25,7 @@ Técnicas ilustradas en este ejemplo:
 
 2-IIS 8 con ASP.Net 4.5 o superior
 
-3-MySQL 5.x o MS SQL Server
+3-MySQL o MS SQL Server
 
 ### Instalación
 1-Descargue e instale el Induxsoft Windows Agent [IWA] desde [https://induxsoft.net/?idpf=e7478a10d09147fcb0203bae001c8290](Descargar IWA)
